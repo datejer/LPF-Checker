@@ -13,6 +13,7 @@ async function fetchUserGamesPage() {
     return Promise.resolve(doc);
   }
 
+  // TODO: switch to using official steam endpoint: https://store.steampowered.com/dynamicstore/userdata/
   console.log("[User Library] Fetching fresh user games page...");
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
@@ -90,7 +91,14 @@ function getSteamGameLimitedStatus(doc) {
   if (!label) {
     return false;
   }
-  return label.innerText.includes("Profile Features Limited");
+
+  if (label.innerText.includes("Profile Features Limited")) {
+    return true;
+  }
+  if (label.innerText.includes("Steam is learning about this game")) {
+    return true;
+  }
+  return false;
 }
 
 function checkIfGameIsDLC(doc) {
