@@ -11,7 +11,8 @@
     {
       "matches": [
         "https://www.dailyindiegame.com/*",
-        "https://www.steamgifts.com/*"
+        "https://www.steamgifts.com/*",
+        "https://compare.tinychan.net/*"
       ],
       "js": ["content-script.js"]
     }
