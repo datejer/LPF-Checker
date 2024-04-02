@@ -335,7 +335,6 @@ async function onWindowLoad() {
 
           markLinkAsOwned(link);
           ownedAmount++;
-          setGameStatusInCache(appId, "owned");
         }
 
         if (!isLimited && !isDLC && !userOwnsGame) {
