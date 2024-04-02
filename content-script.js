@@ -335,11 +335,11 @@ async function onWindowLoad() {
 
           markLinkAsOwned(link);
           ownedAmount++;
+          setGameStatusInCache(appId, "owned");
         }
 
         if (!isLimited && !isDLC && !userOwnsGame) {
           markLinkAsCorrect(link);
-          setGameStatusInCache(appId, "correct");
         }
 
         console.log(`Limited: ${limitedAmount} / ${totalAmount}`);
