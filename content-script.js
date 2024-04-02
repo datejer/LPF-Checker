@@ -300,7 +300,18 @@ async function onWindowLoad() {
           removedAmount++;
           break;
         default:
-          markLinkAsCorrect(link);
+          const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
+          console.log(`User owns game: ${userOwnsGame}`);
+
+          if (userOwnsGame) {
+            console.log(`User owns game: ${link}`);
+
+            markLinkAsOwned(link);
+            ownedAmount++;
+            setGameStatusInCache(appId, "owned");
+          } else {
+            markLinkAsCorrect(link);
+          }
           break;
       }
 
@@ -340,6 +351,7 @@ async function onWindowLoad() {
 
         if (!isLimited && !isDLC && !userOwnsGame) {
           markLinkAsCorrect(link);
+          setGameStatusInCache(appId, "correct");
         }
 
         console.log(`Limited: ${limitedAmount} / ${totalAmount}`);
