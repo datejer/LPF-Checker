@@ -8,31 +8,27 @@ async function fetchUserGamesPage() {
 
   if (cachedUserGamesPage) {
     console.log("[User Library] Using cached user games page...");
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(cachedUserGamesPage, "text/html");
-    return Promise.resolve(doc);
+    return Promise.resolve(cachedUserGamesPage);
   }
 
   // TODO: switch to using official steam endpoint: https://store.steampowered.com/dynamicstore/userdata/
   console.log("[User Library] Fetching fresh user games page...");
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(
-      `https://steamrep.com/util.php?op=getgames&id=${STEAM_USER_ID}`,
+      `https://store.steampowered.com/dynamicstore/userdata`,
       (responseText) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(responseText, "text/html");
         setGameStatusInCache("USERGAMES", responseText);
-        resolve(doc);
+        resolve(responseText);
       }
     );
   });
 }
 
-function checkIfUserOwnsGame(appId, doc) {
-  const game = doc.querySelector(
-    `a[href="https://steamcommunity.com/app/${appId}"]`
-  );
-  return !!game;
+function checkIfUserOwnsGame(appId, jsonResp) {
+  const parsedJson = JSON.parse(jsonResp);
+  const { rgOwnedApps } = parsedJson;
+  console.log("checkIfUserOwnsGame", rgOwnedApps.includes(Number(appId)));
+  return rgOwnedApps.includes(Number(appId));
 }
 
 function getAppIdFromLink(link) {
@@ -262,8 +258,6 @@ async function onWindowLoad() {
 
   const links = getSteamLinks();
   const userGamesPage = await fetchUserGamesPage();
-
-  console.log(userGamesPage);
 
   let limitedAmount = 0;
   const totalAmount = links.length;
