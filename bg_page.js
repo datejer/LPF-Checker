@@ -18,7 +18,10 @@ async function processQueue() {
 
   try {
     // Perform the fetch operation
-    const response = await fetch(request.url, { redirect: "manual" });
+    const response = await fetch(request.url, {
+      redirect: "manual",
+      cache: "no-store",
+    });
     const responseText = await response.text();
 
     // Call the onSuccess callback with the response
