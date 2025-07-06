@@ -277,13 +277,13 @@ async function onWindowLoad() {
     if (cachedStatus) {
       console.log(`Cache hit for ${link}: ${cachedStatus}`);
       switch (cachedStatus) {
-        case "limited":
-          markLinkAsLimited(link);
-          limitedAmount++;
-          break;
         case "owned":
           markLinkAsOwned(link);
           ownedAmount++;
+          break;
+        case "limited":
+          markLinkAsLimited(link);
+          limitedAmount++;
           break;
         case "dlc":
           markLinkAsDLC(link);
@@ -315,25 +315,11 @@ async function onWindowLoad() {
       const steamPageContent = await getSteamPageContent(link);
 
       if (steamPageContent) {
-        const isLimited = getSteamGameLimitedStatus(steamPageContent);
-        console.log(link, isLimited);
-
-        if (isLimited) {
-          markLinkAsLimited(link);
-          limitedAmount++;
-          setGameStatusInCache(appId, "limited");
-        }
-
-        const isDLC = checkIfGameIsDLC(steamPageContent);
-        if (isDLC) {
-          console.log(`DLC: ${link}`);
-          markLinkAsDLC(link);
-          dlcAmount++;
-          setGameStatusInCache(appId, "dlc");
-        }
-
         const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
         console.log(`User owns game: ${userOwnsGame}`);
+
+        const isLimited = getSteamGameLimitedStatus(steamPageContent);
+        const isDLC = checkIfGameIsDLC(steamPageContent);
 
         if (userOwnsGame) {
           console.log(`User owns game: ${link}`);
@@ -341,6 +327,21 @@ async function onWindowLoad() {
           markLinkAsOwned(link);
           ownedAmount++;
           setGameStatusInCache(appId, "owned");
+        } else {
+          console.log(link, isLimited);
+
+          if (isLimited) {
+            markLinkAsLimited(link);
+            limitedAmount++;
+            setGameStatusInCache(appId, "limited");
+          }
+
+          if (isDLC) {
+            console.log(`DLC: ${link}`);
+            markLinkAsDLC(link);
+            dlcAmount++;
+            setGameStatusInCache(appId, "dlc");
+          }
         }
 
         if (!isLimited && !isDLC && !userOwnsGame) {
