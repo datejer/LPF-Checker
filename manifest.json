@@ -1,9 +1,9 @@
 {
   "name": "LPF Checker",
-  "description": "Automatically check if a linked steam game has Limited Profile Features",
+  "description": "Automatically check if a linked Steam game has Limited Profile Features",
   "version": "1.0",
-  "manifest_version": 2,
-  "browser_action": {
+  "manifest_version": 3,
+  "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
@@ -18,18 +18,19 @@
     }
   ],
   "background": {
-    "scripts": ["bg_page.js"],
-    "persistent": false
+    "service_worker": "bg_page.js"
   },
-  "permissions": [
-    "scripting",
-    "activeTab",
-    "tabs",
-    "storage",
-    "http://*/*",
-    "https://*/*",
+  "permissions": ["tabs", "activeTab", "storage"],
+  "host_permissions": [
+    "https://www.dailyindiegame.com/*",
+    "https://www.steamgifts.com/*",
+    "https://compare.tinychan.net/*",
     "*://*.steampowered.com/*",
     "*://*.dailyindiegame.com/*"
   ],
-  "host_permissions": ["https://*/"]
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
 }
