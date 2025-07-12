@@ -24,11 +24,12 @@ async function fetchUserGamesPage() {
   });
 }
 
-function checkIfUserOwnsGame(appId, jsonResp) {
-  const parsedJson = JSON.parse(jsonResp);
-  const { rgOwnedApps } = parsedJson;
-  console.log("checkIfUserOwnsGame", rgOwnedApps.includes(Number(appId)));
-  return rgOwnedApps.includes(Number(appId));
+let ownedGames = [];
+
+function checkIfUserOwnsGame(appId) {
+  const ownsGame = ownedGames.includes(Number(appId));
+  console.log("checkIfUserOwnsGame", ownsGame);
+  return ownsGame;
 }
 
 function getAppIdFromLink(link) {
@@ -259,6 +260,10 @@ async function onWindowLoad() {
   const links = getSteamLinks();
   const userGamesPage = await fetchUserGamesPage();
 
+  const parsedJson = JSON.parse(userGamesPage);
+  const { rgOwnedApps } = parsedJson;
+  ownedGames = rgOwnedApps;
+
   let limitedAmount = 0;
   const totalAmount = links.length;
 
@@ -282,7 +287,7 @@ async function onWindowLoad() {
       let newStatus = cachedStatus;
 
       if (cachedStatus !== "owned") {
-        const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
+        const userOwnsGame = checkIfUserOwnsGame(appId);
 
         if (userOwnsGame) {
           console.log(`User owns game: ${link}`);
@@ -313,7 +318,7 @@ async function onWindowLoad() {
           totalBadAmount++;
           break;
         default:
-          const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
+          const userOwnsGame = checkIfUserOwnsGame(appId);
           console.log(`User owns game: ${userOwnsGame}`);
 
           if (userOwnsGame) {
@@ -335,7 +340,7 @@ async function onWindowLoad() {
       const steamPageContent = await getSteamPageContent(link);
 
       if (steamPageContent) {
-        const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
+        const userOwnsGame = checkIfUserOwnsGame(appId);
         console.log(`User owns game: ${userOwnsGame}`);
 
         const isLimited = getSteamGameLimitedStatus(steamPageContent);
