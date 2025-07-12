@@ -268,6 +268,8 @@ async function onWindowLoad() {
 
   let removedAmount = 0;
 
+  let totalBadAmount = 0;
+
   // update bundle title only when all links are checked - Promise.allSettled
   const promises = links.map(async (link) => {
     markGameAsLoading(link);
@@ -276,22 +278,39 @@ async function onWindowLoad() {
 
     if (cachedStatus) {
       console.log(`Cache hit for ${link}: ${cachedStatus}`);
-      switch (cachedStatus) {
+
+      let newStatus = cachedStatus;
+
+      if (cachedStatus !== "owned") {
+        const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
+
+        if (userOwnsGame) {
+          console.log(`User owns game: ${link}`);
+          setGameStatusInCache(appId, "owned");
+          newStatus = "owned";
+        }
+      }
+
+      switch (newStatus) {
         case "owned":
           markLinkAsOwned(link);
           ownedAmount++;
+          totalBadAmount++;
           break;
         case "limited":
           markLinkAsLimited(link);
           limitedAmount++;
+          totalBadAmount++;
           break;
         case "dlc":
           markLinkAsDLC(link);
           dlcAmount++;
+          totalBadAmount++;
           break;
         case "removed":
           markLinkAsRemoved(link);
           removedAmount++;
+          totalBadAmount++;
           break;
         default:
           const userOwnsGame = checkIfUserOwnsGame(appId, userGamesPage);
@@ -302,6 +321,7 @@ async function onWindowLoad() {
 
             markLinkAsOwned(link);
             ownedAmount++;
+            totalBadAmount++;
             setGameStatusInCache(appId, "owned");
           } else {
             markLinkAsCorrect(link);
@@ -326,6 +346,7 @@ async function onWindowLoad() {
 
           markLinkAsOwned(link);
           ownedAmount++;
+          totalBadAmount++;
           setGameStatusInCache(appId, "owned");
         } else {
           console.log(link, isLimited);
@@ -333,6 +354,7 @@ async function onWindowLoad() {
           if (isLimited) {
             markLinkAsLimited(link);
             limitedAmount++;
+            totalBadAmount++;
             setGameStatusInCache(appId, "limited");
           }
 
@@ -340,6 +362,7 @@ async function onWindowLoad() {
             console.log(`DLC: ${link}`);
             markLinkAsDLC(link);
             dlcAmount++;
+            totalBadAmount++;
             setGameStatusInCache(appId, "dlc");
           }
         }
@@ -354,6 +377,7 @@ async function onWindowLoad() {
         console.log(`Steam page not found: ${link}`);
         markLinkAsRemoved(link);
         removedAmount++;
+        totalBadAmount++;
         setGameStatusInCache(appId, "removed");
       }
 
@@ -362,10 +386,7 @@ async function onWindowLoad() {
   });
 
   Promise.allSettled(promises).then(() => {
-    const irrelevantAmount =
-      limitedAmount + ownedAmount + dlcAmount + removedAmount;
-
-    updateBundleTitle(irrelevantAmount, totalAmount);
+    updateBundleTitle(totalBadAmount, totalAmount);
   });
 }
 
